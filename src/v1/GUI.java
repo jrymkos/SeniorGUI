@@ -36,7 +36,7 @@ public class GUI {
 				connection.setText("Connection Status = " + con_status);
 				frame.remove(panel);
 				
-				//If unsuccessful
+				//If attempt unsuccessful
 			}
 		});
 		
@@ -51,7 +51,7 @@ public class GUI {
 				connection.setText("Connection Status = " + con_status);
 
 				
-				//If unsuccessful
+				//If attempt unsuccessful
 			}
 		});
 		
