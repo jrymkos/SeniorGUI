@@ -2,10 +2,14 @@ package v1;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -134,6 +138,8 @@ public class GUI {
 		});
 		
 		clear_button = new JButton("Clear");
+		clear_button.setPreferredSize(new Dimension(20, 40));
+		clear_button.setAlignmentX(Component.CENTER_ALIGNMENT);
 		clear_button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				
@@ -184,7 +190,8 @@ public class GUI {
 		
 		console_panel = new JPanel();
 		console_panel.setBorder(BorderFactory.createEmptyBorder(30, 30, 10, 30));
-		console_panel.setLayout(new GridLayout(0, 1));
+		BoxLayout boxlayout = new BoxLayout(console_panel, BoxLayout.Y_AXIS);
+		console_panel.setLayout(boxlayout);
 		console_panel.add(console_scroll);
 		console_panel.add(clear_button);
 		
