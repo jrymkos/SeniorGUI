@@ -18,6 +18,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
+import javax.bluetooth.*;
+
 
 public class GUI {
 	
@@ -25,6 +27,7 @@ public class GUI {
 	private JPanel home_panel;
 	private JPanel sensor_panel;
 	private JPanel console_panel;
+	private JPanel map_panel;
 	private JButton connect_button;
 	private JButton disconnect_button;
 	private JButton launch_button;
@@ -51,6 +54,10 @@ public class GUI {
 	private double motor1 = 0; //voltage?
 	private double motor2 = 0; //voltage?
 	
+	//test bluetooth
+	private LocalDevice localDevice; // local Bluetooth Manager
+	private DiscoveryAgent discoveryAgent; // discovery agent
+	
 	
 	//Constructor
 	public GUI() {
@@ -73,6 +80,7 @@ public class GUI {
 			public void actionPerformed(ActionEvent event) {
 				
 				console_text.append("Attempting to Connect\n");
+
 				
 				//Attempt to connect to robot if successful:
 				con_status = true;
@@ -172,8 +180,6 @@ public class GUI {
 		home_panel.add(connect_button);
 		home_panel.add(disconnect_button);
 		home_panel.add(launch_button);
-		home_panel.add(travel_button);
-		home_panel.add(site_decision);
 		home_panel.add(power_label);
 		home_panel.add(power_decision);
 		home_panel.add(connection_label);
@@ -195,11 +201,18 @@ public class GUI {
 		console_panel.add(console_scroll);
 		console_panel.add(clear_button);
 		
+		map_panel = new JPanel();
+		map_panel.setBorder(BorderFactory.createEmptyBorder(30, 30, 10, 30));
+		map_panel.setLayout(new GridLayout(0, 1));
+		map_panel.add(travel_button);
+		map_panel.add(site_decision);
+		
 		//Configure Tabs
 		tabbedPane = new JTabbedPane();
 		tabbedPane.addTab("Home", home_panel);
 		tabbedPane.addTab("Sensors", sensor_panel);
 		tabbedPane.addTab("Console", console_panel);
+		tabbedPane.addTab("Map", map_panel);
 		
 		//Configure Frame
 		frame = new JFrame();
@@ -214,8 +227,26 @@ public class GUI {
 		
 	}
 	
+	//Ignore for now
+	public void bluetooth() throws BluetoothStateException {
+		
+		System.out.println("test");
+	    localDevice = null;
+	    discoveryAgent = null;
+	    // Retrieve the local device to get to the Bluetooth Manager
+	    localDevice = LocalDevice.getLocalDevice();                   
+	    // Servers set the discoverable mode to GIAC
+	    localDevice.setDiscoverable(DiscoveryAgent.GIAC);                   
+	    // Clients retrieve the discovery agent
+	    discoveryAgent = localDevice.getDiscoveryAgent();      
+	    
+	};
+	
 	public static void main(String[] args) {
 		new GUI();
+		
+		GPS gps = new GPS();
+
 	}
 
 }
