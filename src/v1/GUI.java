@@ -5,9 +5,17 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -18,7 +26,21 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
+import javax.swing.event.MouseInputListener;
 import javax.bluetooth.*;
+import org.jxmapviewer.JXMapViewer;
+import org.jxmapviewer.OSMTileFactoryInfo;
+import org.jxmapviewer.VirtualEarthTileFactoryInfo;
+import org.jxmapviewer.input.PanMouseInputListener;
+import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
+import org.jxmapviewer.painter.CompoundPainter;
+import org.jxmapviewer.painter.Painter;
+import org.jxmapviewer.viewer.DefaultTileFactory;
+import org.jxmapviewer.viewer.DefaultWaypoint;
+import org.jxmapviewer.viewer.GeoPosition;
+import org.jxmapviewer.viewer.TileFactoryInfo;
+import org.jxmapviewer.viewer.Waypoint;
+import org.jxmapviewer.viewer.WaypointPainter;
 
 
 public class GUI {
@@ -67,6 +89,8 @@ public class GUI {
 		final JComboBox<String> site_decision = new JComboBox<String>(site_options);
 		site_decision.setBackground(Color.WHITE);
 		site_decision.setFocusable(false);
+		site_decision.setMaximumSize(new Dimension(200, site_decision.getMinimumSize().height));
+		
 		
 		String[] power_options = { "Off", "On" };
 		final JComboBox<String> power_decision = new JComboBox<String>(power_options);
@@ -128,6 +152,7 @@ public class GUI {
 		});
 		
 		travel_button = new JButton("Travel");
+		travel_button.setAlignmentX(Component.CENTER_ALIGNMENT);
 		travel_button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				
@@ -172,7 +197,40 @@ public class GUI {
 		console_scroll = new JScrollPane(console_text);
 		console_scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		console_scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-		
+        
+        //Create Waypoints from coordinates
+        Set<Waypoint> waypoints = new HashSet<Waypoint>(Arrays.asList(
+                new DefaultWaypoint(new GeoPosition(28.6048112,-81.1900596)),
+                new DefaultWaypoint(new GeoPosition(30.6048112,-81.1900596))));
+        
+        //Create painter with all waypoints
+        WaypointPainter<Waypoint> waypointPainter = new WaypointPainter<Waypoint>();
+        waypointPainter.setWaypoints(waypoints);
+        
+        //Create painter with Route-painters and waypoint painters 
+        List<Painter<JXMapViewer>> painters = new ArrayList<Painter<JXMapViewer>>();
+        painters.add(waypointPainter);
+        
+        //Configure Map
+      	JXMapViewer mapViewer = new JXMapViewer();
+        TileFactoryInfo info = new VirtualEarthTileFactoryInfo(VirtualEarthTileFactoryInfo.SATELLITE);
+        DefaultTileFactory tileFactory = new DefaultTileFactory(info);
+        mapViewer.setTileFactory(tileFactory);
+        tileFactory.setThreadPoolSize(Runtime.getRuntime().availableProcessors());
+        GeoPosition geo = new GeoPosition(28.6048112,-81.1900596);
+        mapViewer.setZoom(19); //max zoom
+        mapViewer.setAddressLocation(geo);
+        
+        //Add painters to map
+        CompoundPainter<JXMapViewer> painter = new CompoundPainter<JXMapViewer>(painters);
+        mapViewer.setOverlayPainter(painter);
+              
+        //Enable mobility
+        MouseInputListener input = new PanMouseInputListener(mapViewer);
+        mapViewer.addMouseListener(input);
+        mapViewer.addMouseMotionListener(input);
+        //mapViewer.addMouseWheelListener(new ZoomMouseWheelListenerCursor(mapViewer));
+        
 		//Configure panels
 		home_panel = new JPanel();
 		home_panel.setBorder(BorderFactory.createEmptyBorder(30, 30, 10, 30));
@@ -202,10 +260,12 @@ public class GUI {
 		console_panel.add(clear_button);
 		
 		map_panel = new JPanel();
-		map_panel.setBorder(BorderFactory.createEmptyBorder(30, 30, 10, 30));
-		map_panel.setLayout(new GridLayout(0, 1));
-		map_panel.add(travel_button);
+		map_panel.setLayout(new GridBagLayout());
+		BoxLayout maplayout = new BoxLayout(map_panel, BoxLayout.Y_AXIS);
+		map_panel.setLayout(maplayout);
+		map_panel.add(mapViewer);
 		map_panel.add(site_decision);
+		map_panel.add(travel_button);
 		
 		//Configure Tabs
 		tabbedPane = new JTabbedPane();
@@ -244,9 +304,6 @@ public class GUI {
 	
 	public static void main(String[] args) {
 		new GUI();
-		
-		GPS gps = new GPS();
-
 	}
 
 }
