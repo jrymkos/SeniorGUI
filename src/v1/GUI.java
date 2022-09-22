@@ -76,12 +76,23 @@ public class GUI {
 	private double motor1 = 0; //voltage?
 	private double motor2 = 0; //voltage?
 	
+	//Define Sites and Map stuff
+	private GeoPosition siteA_coords;
+	private GeoPosition siteB_coords;
+	private GeoPosition robot_coords;
+	private RoutePainter routePainter;
+	private CompoundPainter<JXMapViewer> painter;
+	private WaypointPainter<Waypoint> robotPainter;
+	private JXMapViewer mapViewer;
+	private DefaultWaypoint robot_marker;
+			
 	//test bluetooth
 	private LocalDevice localDevice; // local Bluetooth Manager
 	private DiscoveryAgent discoveryAgent; // discovery agent
 	
 	
 	//Constructor
+	@SuppressWarnings("unchecked")
 	public GUI() {
 		
 		//Configure Drop Boxes
@@ -105,13 +116,14 @@ public class GUI {
 				
 				console_text.append("Attempting to Connect\n");
 
-				
 				//Attempt to connect to robot if successful:
 				con_status = true;
 				connection_label.setText("Connection Status = " + con_status);
 				
 				//Set battery percent
 				
+				//Add robot marker to map
+				painter.addPainter(robotPainter);
 				
 				//If attempt unsuccessful
 			}
@@ -127,7 +139,10 @@ public class GUI {
 				con_status = false;
 				connection_label.setText("Connection Status = " + con_status);
 				battery_percent = 0;
-
+				
+				//Remove robot and paths from map
+				painter.removePainter(routePainter);
+				painter.removePainter(robotPainter);
 				
 				//If attempt unsuccessful
 			}
@@ -164,7 +179,22 @@ public class GUI {
 					console_text.append("Connection not established terminating travel\n");
 					return;
 				}
-
+				
+				//Show path to Site on Map
+				painter.removePainter(routePainter); //first remove old route
+				
+				if(site_decision.getSelectedItem().toString().equals("Site A")) {
+					console_text.append("Showing path from robot to SiteA\n");
+					List<GeoPosition> path = Arrays.asList(siteA_coords, robot_coords);
+			        routePainter = new RoutePainter(path);
+				}
+				
+				else if(site_decision.getSelectedItem().toString().equals("Site B")) {
+					console_text.append("Showing path from robot to SiteB\n");
+					List<GeoPosition> path = Arrays.asList(siteB_coords, robot_coords);
+			        routePainter = new RoutePainter(path);
+				}
+				painter.addPainter(routePainter);
 				
 				//If attempt unsuccessful
 			}
@@ -198,21 +228,30 @@ public class GUI {
 		console_scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		console_scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         
-        //Create Waypoints from coordinates
-        Set<Waypoint> waypoints = new HashSet<Waypoint>(Arrays.asList(
-                new DefaultWaypoint(new GeoPosition(28.6048112,-81.1900596)),
-                new DefaultWaypoint(new GeoPosition(30.6048112,-81.1900596))));
+		//Set Sites
+		siteA_coords = new GeoPosition(28.6029636,-81.1905044);
+		siteB_coords = new GeoPosition(28.6047274,-81.1899777);
+		robot_coords = new GeoPosition(28.6047784,-81.1903725);
+		
+        //Create Sites from coordinates
+		
+        Set<Waypoint> sites = new HashSet<Waypoint>(Arrays.asList(
+                new DefaultWaypoint(siteA_coords),
+                new DefaultWaypoint(siteB_coords)));
         
-        //Create painter with all waypoints
-        WaypointPainter<Waypoint> waypointPainter = new WaypointPainter<Waypoint>();
-        waypointPainter.setWaypoints(waypoints);
+        //Create painter with all sites
+        WaypointPainter<Waypoint> sitePainter = new WaypointPainter<Waypoint>();
+        sitePainter.setWaypoints(sites);
         
-        //Create painter with Route-painters and waypoint painters 
-        List<Painter<JXMapViewer>> painters = new ArrayList<Painter<JXMapViewer>>();
-        painters.add(waypointPainter);
-        
+        //Create robot marker and painter
+        robot_marker = new DefaultWaypoint(robot_coords);
+        Set<Waypoint> robot = new HashSet<Waypoint>(Arrays.asList(
+                robot_marker));       
+        robotPainter = new WaypointPainter<Waypoint>();
+        robotPainter.setWaypoints(robot);
+		
         //Configure Map
-      	JXMapViewer mapViewer = new JXMapViewer();
+      	mapViewer = new JXMapViewer();
         TileFactoryInfo info = new VirtualEarthTileFactoryInfo(VirtualEarthTileFactoryInfo.SATELLITE);
         DefaultTileFactory tileFactory = new DefaultTileFactory(info);
         mapViewer.setTileFactory(tileFactory);
@@ -221,8 +260,9 @@ public class GUI {
         mapViewer.setZoom(19); //max zoom
         mapViewer.setAddressLocation(geo);
         
-        //Add painters to map
-        CompoundPainter<JXMapViewer> painter = new CompoundPainter<JXMapViewer>(painters);
+        //Add markers
+        painter = new CompoundPainter<JXMapViewer>(sitePainter);
+        painter.addPainter(sitePainter);
         mapViewer.setOverlayPainter(painter);
               
         //Enable mobility
