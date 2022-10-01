@@ -18,6 +18,7 @@ import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -42,6 +43,10 @@ import org.jxmapviewer.viewer.TileFactoryInfo;
 import org.jxmapviewer.viewer.Waypoint;
 import org.jxmapviewer.viewer.WaypointPainter;
 
+/**
+ * Creates GUI to control the Robot
+ * @author Jared Rymkos
+ */
 
 public class GUI {
 	
@@ -85,6 +90,7 @@ public class GUI {
 	private WaypointPainter<Waypoint> robotPainter;
 	private JXMapViewer mapViewer;
 	private DefaultWaypoint robot_marker;
+	private String curRoute = "";
 			
 	//test bluetooth
 	private LocalDevice localDevice; // local Bluetooth Manager
@@ -140,9 +146,10 @@ public class GUI {
 				connection_label.setText("Connection Status = " + con_status);
 				battery_percent = 0;
 				
-				//Remove robot and paths from map
+				//Remove robot/paths from map
 				painter.removePainter(routePainter);
 				painter.removePainter(robotPainter);
+				curRoute = "";
 				
 				//If attempt unsuccessful
 			}
@@ -195,6 +202,7 @@ public class GUI {
 			        routePainter = new RoutePainter(path);
 				}
 				painter.addPainter(routePainter);
+				curRoute = site_decision.getSelectedItem().toString();
 				
 				//If attempt unsuccessful
 			}
@@ -233,15 +241,14 @@ public class GUI {
 		siteB_coords = new GeoPosition(28.6047274,-81.1899777);
 		robot_coords = new GeoPosition(28.6047784,-81.1903725);
 		
-        //Create Sites from coordinates
-		
-        Set<Waypoint> sites = new HashSet<Waypoint>(Arrays.asList(
-                new DefaultWaypoint(siteA_coords),
-                new DefaultWaypoint(siteB_coords)));
+        Set<MyWaypoint> sites = new HashSet<MyWaypoint>(Arrays.asList(
+        		new MyWaypoint("A", Color.GREEN, siteA_coords),
+                new MyWaypoint("B", Color.GREEN, siteB_coords)));
         
         //Create painter with all sites
-        WaypointPainter<Waypoint> sitePainter = new WaypointPainter<Waypoint>();
+        WaypointPainter<MyWaypoint> sitePainter = new WaypointPainter<MyWaypoint>();
         sitePainter.setWaypoints(sites);
+        sitePainter.setRenderer(new FancyWaypointRenderer());
         
         //Create robot marker and painter
         robot_marker = new DefaultWaypoint(robot_coords);
@@ -324,6 +331,39 @@ public class GUI {
 		frame.setResizable(true);
 		frame.setVisible(true);
 		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+		
+		//Configure timer interrupt to update map
+		int delay = 5000; //in msec
+		ActionListener mapUpdater = new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				
+				//Need to read and format coords from the GPS on robot
+				
+				//Update robots coords
+				robot_coords = new GeoPosition(28.6057784,-81.1903725);
+				robot_marker.setPosition(robot_coords);
+				
+				//Update site lines only if the robot is moving to a Site
+				if(!(curRoute.equals(""))) {
+					
+					painter.removePainter(routePainter);
+					
+					if(curRoute.equals("Site A")) {
+						List<GeoPosition> path = Arrays.asList(siteA_coords, robot_coords);
+						routePainter = new RoutePainter(path);
+					}
+					else if (curRoute.equals("Site B")) {
+						List<GeoPosition> path = Arrays.asList(siteB_coords, robot_coords);
+						routePainter = new RoutePainter(path);
+					}
+					
+			        painter.addPainter(routePainter);
+				}
+				
+				
+			}
+		};
+		new javax.swing.Timer(delay, mapUpdater).start();
 		
 	}
 	
