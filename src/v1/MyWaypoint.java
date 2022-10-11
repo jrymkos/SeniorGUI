@@ -12,7 +12,7 @@ import org.jxmapviewer.viewer.GeoPosition;
 public class MyWaypoint extends DefaultWaypoint
 {
     private final String label;
-    private final Color color;
+    private Color color;
 
     /**
      * @param label the text
@@ -40,6 +40,14 @@ public class MyWaypoint extends DefaultWaypoint
     public Color getColor()
     {
         return color;
+    }
+    
+    public void setRed() {
+    	this.color = Color.RED;
+    }
+    
+    public void setGreen() {
+    	this.color = Color.GREEN;
     }
 
 }

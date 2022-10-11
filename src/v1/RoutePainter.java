@@ -84,7 +84,7 @@ public class RoutePainter implements Painter<JXMapViewer>
             }
             else
             {
-                g.drawLine(lastX, lastY, (int) pt.getX(), (int) pt.getY());
+                g.drawLine(lastX, lastY - 10, (int) pt.getX(), (int) pt.getY());
             }
 
             lastX = (int) pt.getX();

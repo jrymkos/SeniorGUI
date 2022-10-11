@@ -46,7 +46,7 @@ public class FancyWaypointRenderer implements WaypointRenderer<MyWaypoint>
      */
     public FancyWaypointRenderer()
     {
-        URL resource = getClass().getResource("waypoint_white.png");
+        URL resource = getClass().getResource("house.png");
 
         try
         {
@@ -111,7 +111,7 @@ public class FancyWaypointRenderer implements WaypointRenderer<MyWaypoint>
         int th = 1 + metrics.getAscent();
 
 //        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g.drawString(label, x - tw / 2, y + th - myImg.getHeight());
+        g.drawString(label, (x - tw / 2) - 1, y + th - myImg.getHeight() + 12);
 
         g.dispose();
     }

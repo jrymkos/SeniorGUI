@@ -10,6 +10,7 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -32,6 +33,7 @@ import javax.bluetooth.*;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.OSMTileFactoryInfo;
 import org.jxmapviewer.VirtualEarthTileFactoryInfo;
+import org.jxmapviewer.cache.FileBasedLocalCache;
 import org.jxmapviewer.input.PanMouseInputListener;
 import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
 import org.jxmapviewer.painter.CompoundPainter;
@@ -63,10 +65,10 @@ public class GUI {
 	private JLabel connection_label;
 	private JLabel power_label;
 	private JLabel battery_label;
-	private JLabel lidar1_label;
+	private JLabel people_label;
 	private JLabel motor1_label;
 	private JLabel motor2_label;
-	private JLabel temperature_label;
+	private JLabel speed_label;
 	private JLabel balance_label;
 	private JTextArea console_text;
 	private JScrollPane console_scroll;
@@ -75,9 +77,9 @@ public class GUI {
 	//Variables
 	private boolean con_status = false;
 	private int battery_percent = 0;
-	private double lidar1 = 0; //In meters?
+	private int people = 0; //amount of people identified
 	private double balance = 0; //In degrees
-	private int temperature = 0; //In celsius?
+	private double speed = 0; //In m/s
 	private double motor1 = 0; //voltage?
 	private double motor2 = 0; //voltage?
 	
@@ -91,6 +93,8 @@ public class GUI {
 	private JXMapViewer mapViewer;
 	private DefaultWaypoint robot_marker;
 	private String curRoute = "";
+	private MyWaypoint siteA;
+	private MyWaypoint siteB;
 			
 	//test bluetooth
 	private LocalDevice localDevice; // local Bluetooth Manager
@@ -100,21 +104,14 @@ public class GUI {
 	//Constructor
 	@SuppressWarnings("unchecked")
 	public GUI() {
-		
+        
 		//Configure Drop Boxes
 		String[] site_options = { "Site A", "Site B" };
 		final JComboBox<String> site_decision = new JComboBox<String>(site_options);
 		site_decision.setBackground(Color.WHITE);
 		site_decision.setFocusable(false);
 		site_decision.setMaximumSize(new Dimension(200, site_decision.getMinimumSize().height));
-		
-		
-		String[] power_options = { "Off", "On" };
-		final JComboBox<String> power_decision = new JComboBox<String>(power_options);
-		power_decision.setBackground(Color.WHITE);
-		power_decision.setFocusable(false);
-				
-		
+						
 		//Configure Buttons
 		connect_button = new JButton("Connect to Robot");
 		connect_button.addActionListener(new ActionListener() {
@@ -146,28 +143,12 @@ public class GUI {
 				connection_label.setText("Connection Status = " + con_status);
 				battery_percent = 0;
 				
-				//Remove robot/paths from map
+				//Remove robot/paths from map and restore colors
 				painter.removePainter(routePainter);
 				painter.removePainter(robotPainter);
 				curRoute = "";
-				
-				//If attempt unsuccessful
-			}
-		});
-		
-		launch_button = new JButton("Launch BES");
-		launch_button.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent event) {
-				
-				console_text.append("Attempting to Launch BES\n");
-				
-				//Check if established connection
-				if(con_status == false) {
-					
-					console_text.append("Connection not established terminating launch\n");
-					return;
-				}
-
+				siteA.setGreen();
+				siteB.setGreen();
 				
 				//If attempt unsuccessful
 			}
@@ -194,12 +175,16 @@ public class GUI {
 					console_text.append("Showing path from robot to SiteA\n");
 					List<GeoPosition> path = Arrays.asList(siteA_coords, robot_coords);
 			        routePainter = new RoutePainter(path);
+			        siteA.setRed();
+			        siteB.setGreen();
 				}
 				
 				else if(site_decision.getSelectedItem().toString().equals("Site B")) {
 					console_text.append("Showing path from robot to SiteB\n");
 					List<GeoPosition> path = Arrays.asList(siteB_coords, robot_coords);
 			        routePainter = new RoutePainter(path);
+			        siteB.setRed();
+			        siteA.setGreen();
 				}
 				painter.addPainter(routePainter);
 				curRoute = site_decision.getSelectedItem().toString();
@@ -222,12 +207,11 @@ public class GUI {
 		//Configure Label/Outputs
 		connection_label = new JLabel("Connection Status = " + con_status);
 		battery_label = new JLabel("Battery Percentage = " + battery_percent + "%");
-		power_label = new JLabel("Power to BES:");
-		lidar1_label = new JLabel("LIDAR 1: " + lidar1 + " meters");
+		people_label = new JLabel("Number of people found: " + people);
 		motor1_label = new JLabel("Motor 1: " + motor1 + " volts");
 		motor2_label = new JLabel("Motor 2: " + motor2 + " volts");
 		balance_label = new JLabel("Balance: " + balance + " degrees");
-		temperature_label = new JLabel("Temperature: " + temperature + " celsius");
+		speed_label = new JLabel("Speed: " + speed + " meters per second");
 		
 		//Configure Text Boxes
 		console_text = new JTextArea("");
@@ -241,9 +225,11 @@ public class GUI {
 		siteB_coords = new GeoPosition(28.6047274,-81.1899777);
 		robot_coords = new GeoPosition(28.6047784,-81.1903725);
 		
+		siteA = new MyWaypoint("A", Color.GREEN, siteA_coords);
+		siteB = new MyWaypoint("B", Color.GREEN, siteB_coords);
         Set<MyWaypoint> sites = new HashSet<MyWaypoint>(Arrays.asList(
-        		new MyWaypoint("A", Color.GREEN, siteA_coords),
-                new MyWaypoint("B", Color.GREEN, siteB_coords)));
+        		siteA,
+                siteB));
         
         //Create painter with all sites
         WaypointPainter<MyWaypoint> sitePainter = new WaypointPainter<MyWaypoint>();
@@ -267,6 +253,10 @@ public class GUI {
         mapViewer.setZoom(19); //max zoom
         mapViewer.setAddressLocation(geo);
         
+        // Setup local file cache
+        //File cacheDir = new File(System.getProperty("user.home") + File.separator + ".jxmapviewer2");
+        //tileFactory.setLocalCache(new FileBasedLocalCache(cacheDir, false));
+        
         //Add markers
         painter = new CompoundPainter<JXMapViewer>(sitePainter);
         painter.addPainter(sitePainter);
@@ -284,20 +274,17 @@ public class GUI {
 		home_panel.setLayout(new GridLayout(0, 1));
 		home_panel.add(connect_button);
 		home_panel.add(disconnect_button);
-		home_panel.add(launch_button);
-		home_panel.add(power_label);
-		home_panel.add(power_decision);
 		home_panel.add(connection_label);
 		home_panel.add(battery_label);
 		
 		sensor_panel = new JPanel();
 		sensor_panel.setBorder(BorderFactory.createEmptyBorder(30, 30, 10, 30));
 		sensor_panel.setLayout(new GridLayout(0, 1));
-		sensor_panel.add(lidar1_label);
+		sensor_panel.add(people_label);
 		sensor_panel.add(motor1_label);
 		sensor_panel.add(motor2_label);
 		sensor_panel.add(balance_label);
-		sensor_panel.add(temperature_label);
+		sensor_panel.add(speed_label);
 		
 		console_panel = new JPanel();
 		console_panel.setBorder(BorderFactory.createEmptyBorder(30, 30, 10, 30));
@@ -333,11 +320,14 @@ public class GUI {
 		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		
 		//Configure timer interrupt to update map
-		int delay = 5000; //in msec
+		int delay = 500; //in msec
 		ActionListener mapUpdater = new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				
+				mapViewer.repaint();
+				
 				//Need to read and format coords from the GPS on robot
+				
 				
 				//Update robots coords
 				robot_coords = new GeoPosition(28.6057784,-81.1903725);
@@ -359,8 +349,7 @@ public class GUI {
 					
 			        painter.addPainter(routePainter);
 				}
-				
-				
+	
 			}
 		};
 		new javax.swing.Timer(delay, mapUpdater).start();
