@@ -118,6 +118,7 @@ public class GUI {
 			public void actionPerformed(ActionEvent event) {
 				
 				console_text.append("Attempting to Connect\n");
+				console_text.append("Connection Successful\n");
 
 				//Attempt to connect to robot if successful:
 				con_status = true;
@@ -147,8 +148,8 @@ public class GUI {
 				painter.removePainter(routePainter);
 				painter.removePainter(robotPainter);
 				curRoute = "";
-				siteA.setGreen();
-				siteB.setGreen();
+				siteA.setGray();
+				siteB.setGray();
 				
 				//If attempt unsuccessful
 			}
@@ -176,7 +177,7 @@ public class GUI {
 					List<GeoPosition> path = Arrays.asList(siteA_coords, robot_coords);
 			        routePainter = new RoutePainter(path);
 			        siteA.setRed();
-			        siteB.setGreen();
+			        siteB.setGray();
 				}
 				
 				else if(site_decision.getSelectedItem().toString().equals("Site B")) {
@@ -184,7 +185,7 @@ public class GUI {
 					List<GeoPosition> path = Arrays.asList(siteB_coords, robot_coords);
 			        routePainter = new RoutePainter(path);
 			        siteB.setRed();
-			        siteA.setGreen();
+			        siteA.setGray();
 				}
 				painter.addPainter(routePainter);
 				curRoute = site_decision.getSelectedItem().toString();
@@ -225,8 +226,8 @@ public class GUI {
 		siteB_coords = new GeoPosition(28.6047274,-81.1899777);
 		robot_coords = new GeoPosition(28.6047784,-81.1903725);
 		
-		siteA = new MyWaypoint("A", Color.GREEN, siteA_coords);
-		siteB = new MyWaypoint("B", Color.GREEN, siteB_coords);
+		siteA = new MyWaypoint("A", Color.GRAY, siteA_coords);
+		siteB = new MyWaypoint("B", Color.GRAY, siteB_coords);
         Set<MyWaypoint> sites = new HashSet<MyWaypoint>(Arrays.asList(
         		siteA,
                 siteB));

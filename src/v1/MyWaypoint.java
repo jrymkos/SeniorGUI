@@ -46,8 +46,8 @@ public class MyWaypoint extends DefaultWaypoint
     	this.color = Color.RED;
     }
     
-    public void setGreen() {
-    	this.color = Color.GREEN;
+    public void setGray() {
+    	this.color = Color.GRAY;
     }
 
 }
