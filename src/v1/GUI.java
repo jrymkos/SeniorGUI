@@ -11,6 +11,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -95,12 +96,7 @@ public class GUI {
 	private String curRoute = "";
 	private MyWaypoint siteA;
 	private MyWaypoint siteB;
-			
-	//test bluetooth
-	private LocalDevice localDevice; // local Bluetooth Manager
-	private DiscoveryAgent discoveryAgent; // discovery agent
-	
-	
+					
 	//Constructor
 	@SuppressWarnings("unchecked")
 	public GUI() {
@@ -119,7 +115,16 @@ public class GUI {
 				
 				console_text.append("Attempting to Connect\n");
 				console_text.append("Connection Successful\n");
-
+				
+				
+				//TEMP
+				try {
+					bluetooth();
+				} catch (BluetoothStateException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
 				//Attempt to connect to robot if successful:
 				con_status = true;
 				connection_label.setText("Connection Status = " + con_status);
@@ -360,15 +365,71 @@ public class GUI {
 	//Ignore for now
 	public void bluetooth() throws BluetoothStateException {
 		
-		System.out.println("test");
-	    localDevice = null;
-	    discoveryAgent = null;
-	    // Retrieve the local device to get to the Bluetooth Manager
-	    localDevice = LocalDevice.getLocalDevice();                   
-	    // Servers set the discoverable mode to GIAC
-	    localDevice.setDiscoverable(DiscoveryAgent.GIAC);                   
-	    // Clients retrieve the discovery agent
-	    discoveryAgent = localDevice.getDiscoveryAgent();      
+		/*//Prints all searching bluetooth devices
+		 
+			// "https://rymuff.wordpress.com/2019/01/23/bluecove/"
+			System.out.println();
+		    Object inquiryCompletedEvent = new Object();
+		    ArrayList<RemoteDevice> remoteDevices = new ArrayList<>();
+		    
+		    System.out.println(remoteDevices);
+		    
+		    synchronized (inquiryCompletedEvent) {
+		        LocalDevice.getLocalDevice().getDiscoveryAgent().startInquiry(DiscoveryAgent.GIAC, new DiscoveryListener() {
+		            @Override
+		            public void deviceDiscovered(RemoteDevice btDevice, DeviceClass cod) {
+		                remoteDevices.add(btDevice);
+		            }
+
+		            @Override
+		            public void servicesDiscovered(int transID, ServiceRecord[] serviceRecords) {
+		            }
+
+		            @Override
+		            public void serviceSearchCompleted(int transID, int respCode) {
+
+		            }
+
+		            @Override
+		            public void inquiryCompleted(int discType) {
+		                synchronized (inquiryCompletedEvent) {
+		                    System.out.println("[inquiry completed]");
+		                    inquiryCompletedEvent.notifyAll();
+		                }
+		            }
+		        });
+		        System.out.print("\nStart inquiry remote devices... ");
+		        try {
+					inquiryCompletedEvent.wait();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		    }
+
+		    System.out.println(remoteDevices);
+		* 
+		 */
+		
+		
+		/*//Prints all connected bluetooth devices
+		
+
+		LocalDevice device = LocalDevice.getLocalDevice(); // local Bluetooth Manager
+		RemoteDevice[] remotedevice = device.getDiscoveryAgent().retrieveDevices(DiscoveryAgent.PREKNOWN); // discovery agent
+		
+		for(RemoteDevice d : remotedevice) {
+			try {
+				System.out.println("Device Name : "+ d.getFriendlyName(false));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			System.out.println("Bluetooth Address : "+ d.getBluetoothAddress() + "\n");
+		}
+		
+		*/
+		
 	    
 	};
 	
