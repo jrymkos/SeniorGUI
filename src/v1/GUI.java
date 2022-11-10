@@ -90,10 +90,10 @@ public class GUI {
 	private GeoPosition siteC_coords;
 	private GeoPosition robot_coords;
 	private RoutePainter routePainter;
+	private WaypointPainter<MyWaypoint> robotPainter;
 	private CompoundPainter<JXMapViewer> painter;
-	private WaypointPainter<Waypoint> robotPainter;
 	private JXMapViewer mapViewer;
-	private DefaultWaypoint robot_marker;
+	private MyWaypoint robot_marker;
 	private String curRoute = "";
 	private MyWaypoint siteA;
 	private MyWaypoint siteB;
@@ -195,6 +195,7 @@ public class GUI {
 			        routePainter = new RoutePainter(path);
 			        siteB.setRed();
 			        siteA.setGray();
+			        siteC.setGray();
 				}
 				
 				else if(site_decision.getSelectedItem().toString().equals("Site C")) {
@@ -240,10 +241,10 @@ public class GUI {
 		console_scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         
 		//Set Sites
-		siteA_coords = new GeoPosition(28.6746264,-81.183521);
-		siteB_coords = new GeoPosition(28.6047274,-81.1899777);
-		siteC_coords = new GeoPosition(28.6047274,-81.1919777);
-		robot_coords = new GeoPosition(28.6047784,-81.1903725);
+		siteA_coords = new GeoPosition(28.6041774,-81.1902300);
+		siteB_coords = new GeoPosition(28.6041274,-81.1899777);
+		siteC_coords = new GeoPosition(28.6042274,-81.1905577);
+		robot_coords = new GeoPosition(28.6042284,-81.1904725);
 		
 		siteA = new MyWaypoint("A", Color.GRAY, siteA_coords);
 		siteB = new MyWaypoint("B", Color.GRAY, siteB_coords);
@@ -256,14 +257,17 @@ public class GUI {
         //Create painter with all sites
         WaypointPainter<MyWaypoint> sitePainter = new WaypointPainter<MyWaypoint>();
         sitePainter.setWaypoints(sites);
-        sitePainter.setRenderer(new FancyWaypointRenderer());
+        sitePainter.setRenderer(new FancyWaypointRenderer("house.png"));
         
         //Create robot marker and painter
-        robot_marker = new DefaultWaypoint(robot_coords);
-        Set<Waypoint> robot = new HashSet<Waypoint>(Arrays.asList(
-                robot_marker));       
-        robotPainter = new WaypointPainter<Waypoint>();
+        robot_marker = new MyWaypoint("", Color.BLUE, robot_coords);
+        Set<MyWaypoint> robot = new HashSet<MyWaypoint>(Arrays.asList(
+                robot_marker));
+        
+        //Create painter with robot
+        robotPainter = new WaypointPainter<MyWaypoint>();
         robotPainter.setWaypoints(robot);
+        robotPainter.setRenderer(new FancyWaypointRenderer("waypoint_white.png"));
 		
         //Configure Map
       	mapViewer = new JXMapViewer();
@@ -271,13 +275,13 @@ public class GUI {
         DefaultTileFactory tileFactory = new DefaultTileFactory(info);
         mapViewer.setTileFactory(tileFactory);
         tileFactory.setThreadPoolSize(Runtime.getRuntime().availableProcessors());
-        GeoPosition geo = new GeoPosition(28.6746596,-81.1835509); //28.6746596,-81.1835509 //28.6041894,-81.1906883
+        GeoPosition geo = new GeoPosition(28.6041894,-81.1906883); //28.6746596,-81.1835509 //28.6041894,-81.1906883
         mapViewer.setZoom(19); //max zoom
         mapViewer.setAddressLocation(geo);
         
         // Setup local file cache
-        //File cacheDir = new File(System.getProperty("user.home") + File.separator + ".jxmapviewer2");
-        //tileFactory.setLocalCache(new FileBasedLocalCache(cacheDir, false));
+        File cacheDir = new File(System.getProperty("user.home") + File.separator + ".jxmapviewer2");
+        tileFactory.setLocalCache(new FileBasedLocalCache(cacheDir, false));
         
         //Add markers
         painter = new CompoundPainter<JXMapViewer>(sitePainter);
@@ -288,7 +292,7 @@ public class GUI {
         MouseInputListener input = new PanMouseInputListener(mapViewer);
         mapViewer.addMouseListener(input);
         mapViewer.addMouseMotionListener(input);
-        //mapViewer.addMouseWheelListener(new ZoomMouseWheelListenerCursor(mapViewer));
+        mapViewer.addMouseWheelListener(new ZoomMouseWheelListenerCursor(mapViewer));
         
 		//Configure panels
 		home_panel = new JPanel();
@@ -352,7 +356,7 @@ public class GUI {
 				
 				
 				//Update robots coords
-				robot_coords = new GeoPosition(28.6057784,-81.1903725);
+				robot_coords = new GeoPosition(28.6040284,-81.1904725);
 				robot_marker.setPosition(robot_coords);
 				
 				//Update site lines only if the robot is moving to a Site

@@ -11,6 +11,7 @@ package v1;
 
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
@@ -44,9 +45,9 @@ public class FancyWaypointRenderer implements WaypointRenderer<MyWaypoint>
     /**
      * Uses a default waypoint image
      */
-    public FancyWaypointRenderer()
+    public FancyWaypointRenderer(String icon)
     {
-        URL resource = getClass().getResource("house.png");
+        URL resource = getClass().getResource(icon);
 
         try
         {
@@ -103,15 +104,16 @@ public class FancyWaypointRenderer implements WaypointRenderer<MyWaypoint>
         g.drawImage(myImg, x -myImg.getWidth() / 2, y -myImg.getHeight(), null);
 
         String label = w.getLabel();
-
-//        g.setFont(font);
-
+        
+        //Set Font
+        Font siteText = new Font ("TimesNewRoman", Font.BOLD, 10);
+        g.setFont(siteText);
         FontMetrics metrics = g.getFontMetrics();
         int tw = metrics.stringWidth(label);
         int th = 1 + metrics.getAscent();
 
 //        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g.drawString(label, (x - tw / 2) - 1, y + th - myImg.getHeight() + 12);
+        g.drawString(label, (x - tw / 2) - 1, y + th - myImg.getHeight() + 2);
 
         g.dispose();
     }
