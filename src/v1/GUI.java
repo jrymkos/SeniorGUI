@@ -241,10 +241,10 @@ public class GUI {
 		console_scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         
 		//Set Sites
-		siteA_coords = new GeoPosition(28.6041774,-81.1902300);
-		siteB_coords = new GeoPosition(28.6041274,-81.1899777);
-		siteC_coords = new GeoPosition(28.6042274,-81.1905577);
-		robot_coords = new GeoPosition(28.6042284,-81.1904725);
+		siteA_coords = new GeoPosition(28.6745596,-81.1835509);
+		siteB_coords = new GeoPosition(28.6744996,-81.1834509);
+		siteC_coords = new GeoPosition(28.6745996,-81.1833509);
+		robot_coords = new GeoPosition(28.6743996,-81.1833509);
 		
 		siteA = new MyWaypoint("A", Color.GRAY, siteA_coords);
 		siteB = new MyWaypoint("B", Color.GRAY, siteB_coords);
@@ -275,7 +275,7 @@ public class GUI {
         DefaultTileFactory tileFactory = new DefaultTileFactory(info);
         mapViewer.setTileFactory(tileFactory);
         tileFactory.setThreadPoolSize(Runtime.getRuntime().availableProcessors());
-        GeoPosition geo = new GeoPosition(28.6041894,-81.1906883); //28.6746596,-81.1835509 //28.6041894,-81.1906883
+        GeoPosition geo = new GeoPosition(28.6746596,-81.1835509); //28.6746596,-81.1835509 //28.6041894,-81.1906883
         mapViewer.setZoom(19); //max zoom
         mapViewer.setAddressLocation(geo);
         
@@ -356,7 +356,7 @@ public class GUI {
 				
 				
 				//Update robots coords
-				robot_coords = new GeoPosition(28.6040284,-81.1904725);
+				robot_coords = new GeoPosition(28.6744496,-81.1833509);
 				robot_marker.setPosition(robot_coords);
 				
 				//Update site lines only if the robot is moving to a Site
