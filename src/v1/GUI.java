@@ -87,6 +87,7 @@ public class GUI {
 	//Define Sites and Map stuff
 	private GeoPosition siteA_coords;
 	private GeoPosition siteB_coords;
+	private GeoPosition siteC_coords;
 	private GeoPosition robot_coords;
 	private RoutePainter routePainter;
 	private CompoundPainter<JXMapViewer> painter;
@@ -96,13 +97,14 @@ public class GUI {
 	private String curRoute = "";
 	private MyWaypoint siteA;
 	private MyWaypoint siteB;
+	private MyWaypoint siteC;
 					
 	//Constructor
 	@SuppressWarnings("unchecked")
 	public GUI() {
         
 		//Configure Drop Boxes
-		String[] site_options = { "Site A", "Site B" };
+		String[] site_options = { "Site A", "Site B", "Site C" };
 		final JComboBox<String> site_decision = new JComboBox<String>(site_options);
 		site_decision.setBackground(Color.WHITE);
 		site_decision.setFocusable(false);
@@ -155,6 +157,7 @@ public class GUI {
 				curRoute = "";
 				siteA.setGray();
 				siteB.setGray();
+				siteC.setGray();
 				
 				//If attempt unsuccessful
 			}
@@ -183,6 +186,7 @@ public class GUI {
 			        routePainter = new RoutePainter(path);
 			        siteA.setRed();
 			        siteB.setGray();
+			        siteC.setGray();
 				}
 				
 				else if(site_decision.getSelectedItem().toString().equals("Site B")) {
@@ -190,6 +194,15 @@ public class GUI {
 					List<GeoPosition> path = Arrays.asList(siteB_coords, robot_coords);
 			        routePainter = new RoutePainter(path);
 			        siteB.setRed();
+			        siteA.setGray();
+				}
+				
+				else if(site_decision.getSelectedItem().toString().equals("Site C")) {
+					console_text.append("Showing path from robot to SiteC\n");
+					List<GeoPosition> path = Arrays.asList(siteC_coords, robot_coords);
+			        routePainter = new RoutePainter(path);
+			        siteC.setRed();
+			        siteB.setGray();
 			        siteA.setGray();
 				}
 				painter.addPainter(routePainter);
@@ -227,15 +240,18 @@ public class GUI {
 		console_scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         
 		//Set Sites
-		siteA_coords = new GeoPosition(28.6029636,-81.1905044);
+		siteA_coords = new GeoPosition(28.6746264,-81.183521);
 		siteB_coords = new GeoPosition(28.6047274,-81.1899777);
+		siteC_coords = new GeoPosition(28.6047274,-81.1919777);
 		robot_coords = new GeoPosition(28.6047784,-81.1903725);
 		
 		siteA = new MyWaypoint("A", Color.GRAY, siteA_coords);
 		siteB = new MyWaypoint("B", Color.GRAY, siteB_coords);
+		siteC = new MyWaypoint("C", Color.GRAY, siteC_coords);
         Set<MyWaypoint> sites = new HashSet<MyWaypoint>(Arrays.asList(
         		siteA,
-                siteB));
+                siteB,
+                siteC));
         
         //Create painter with all sites
         WaypointPainter<MyWaypoint> sitePainter = new WaypointPainter<MyWaypoint>();
@@ -255,7 +271,7 @@ public class GUI {
         DefaultTileFactory tileFactory = new DefaultTileFactory(info);
         mapViewer.setTileFactory(tileFactory);
         tileFactory.setThreadPoolSize(Runtime.getRuntime().availableProcessors());
-        GeoPosition geo = new GeoPosition(28.6048112,-81.1900596);
+        GeoPosition geo = new GeoPosition(28.6746596,-81.1835509); //28.6746596,-81.1835509 //28.6041894,-81.1906883
         mapViewer.setZoom(19); //max zoom
         mapViewer.setAddressLocation(geo);
         
@@ -350,6 +366,10 @@ public class GUI {
 					}
 					else if (curRoute.equals("Site B")) {
 						List<GeoPosition> path = Arrays.asList(siteB_coords, robot_coords);
+						routePainter = new RoutePainter(path);
+					}
+					else if (curRoute.equals("Site C")) {
+						List<GeoPosition> path = Arrays.asList(siteC_coords, robot_coords);
 						routePainter = new RoutePainter(path);
 					}
 					
