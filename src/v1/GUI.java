@@ -62,6 +62,7 @@ public class GUI {
 	private JButton disconnect_button;
 	private JButton launch_button;
 	private JButton travel_button;
+	private JButton stop_button;
 	private JButton clear_button;
 	private JLabel connection_label;
 	private JLabel power_label;
@@ -165,6 +166,7 @@ public class GUI {
 		
 		travel_button = new JButton("Travel");
 		travel_button.setAlignmentX(Component.CENTER_ALIGNMENT);
+		travel_button.setMaximumSize(new Dimension(200, 200));
 		travel_button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				
@@ -213,6 +215,27 @@ public class GUI {
 			}
 		});
 		
+		stop_button = new JButton("Stop");
+		stop_button.setAlignmentX(Component.CENTER_ALIGNMENT);
+		stop_button.setMaximumSize(new Dimension(200, 200));
+		stop_button.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				
+				console_text.append("Stopping Travel \n");
+				
+				//Send signal to ROS
+				
+				//Clean up Map
+				curRoute = "";
+				painter.removePainter(routePainter);
+				siteA.setGray();
+				siteB.setGray();
+				siteC.setGray();
+	
+			}
+		});
+		
+		
 		clear_button = new JButton("Clear");
 		clear_button.setPreferredSize(new Dimension(20, 40));
 		clear_button.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -244,7 +267,7 @@ public class GUI {
 		siteA_coords = new GeoPosition(28.6745596,-81.1835509);
 		siteB_coords = new GeoPosition(28.6744996,-81.1834509);
 		siteC_coords = new GeoPosition(28.6745996,-81.1833509);
-		robot_coords = new GeoPosition(28.6743996,-81.1833509);
+		robot_coords = new GeoPosition(28.6744496,-81.1833509);
 		
 		siteA = new MyWaypoint("A", Color.GRAY, siteA_coords);
 		siteB = new MyWaypoint("B", Color.GRAY, siteB_coords);
@@ -326,6 +349,7 @@ public class GUI {
 		map_panel.add(mapViewer);
 		map_panel.add(site_decision);
 		map_panel.add(travel_button);
+		map_panel.add(stop_button);
 		
 		//Configure Tabs
 		tabbedPane = new JTabbedPane();
