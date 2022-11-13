@@ -110,6 +110,8 @@ public class GUI {
 		site_decision.setBackground(Color.WHITE);
 		site_decision.setFocusable(false);
 		site_decision.setMaximumSize(new Dimension(200, site_decision.getMinimumSize().height));
+		
+		Client client = new Client();
 						
 		//Configure Buttons
 		connect_button = new JButton("Connect to Robot");
@@ -120,11 +122,10 @@ public class GUI {
 				console_text.append("Connection Successful\n");
 				
 				
-				//TEMP
+				//Attempt the bluetooth
 				try {
-					bluetooth();
+					client.connect();
 				} catch (BluetoothStateException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				
@@ -410,76 +411,6 @@ public class GUI {
 		
 	}
 	
-	//Ignore for now
-	public void bluetooth() throws BluetoothStateException {
-		
-		/*//Prints all searching bluetooth devices
-		 
-			// "https://rymuff.wordpress.com/2019/01/23/bluecove/"
-			System.out.println();
-		    Object inquiryCompletedEvent = new Object();
-		    ArrayList<RemoteDevice> remoteDevices = new ArrayList<>();
-		    
-		    System.out.println(remoteDevices);
-		    
-		    synchronized (inquiryCompletedEvent) {
-		        LocalDevice.getLocalDevice().getDiscoveryAgent().startInquiry(DiscoveryAgent.GIAC, new DiscoveryListener() {
-		            @Override
-		            public void deviceDiscovered(RemoteDevice btDevice, DeviceClass cod) {
-		                remoteDevices.add(btDevice);
-		            }
-
-		            @Override
-		            public void servicesDiscovered(int transID, ServiceRecord[] serviceRecords) {
-		            }
-
-		            @Override
-		            public void serviceSearchCompleted(int transID, int respCode) {
-
-		            }
-
-		            @Override
-		            public void inquiryCompleted(int discType) {
-		                synchronized (inquiryCompletedEvent) {
-		                    System.out.println("[inquiry completed]");
-		                    inquiryCompletedEvent.notifyAll();
-		                }
-		            }
-		        });
-		        System.out.print("\nStart inquiry remote devices... ");
-		        try {
-					inquiryCompletedEvent.wait();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-		    }
-
-		    System.out.println(remoteDevices);
-		* 
-		 */
-		
-		
-		/*//Prints all connected bluetooth devices
-		
-
-		LocalDevice device = LocalDevice.getLocalDevice(); // local Bluetooth Manager
-		RemoteDevice[] remotedevice = device.getDiscoveryAgent().retrieveDevices(DiscoveryAgent.PREKNOWN); // discovery agent
-		
-		for(RemoteDevice d : remotedevice) {
-			try {
-				System.out.println("Device Name : "+ d.getFriendlyName(false));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			System.out.println("Bluetooth Address : "+ d.getBluetoothAddress() + "\n");
-		}
-		
-		*/
-		
-	    
-	};
 	
 	public static void main(String[] args) {
 		new GUI();
