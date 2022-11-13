@@ -6,8 +6,7 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/Work/eclipse-workspace/SeniorGUI/dependencies/bluecove-2.1.1.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Work/eclipse-workspace/SeniorGUI/dependencies/commons-logging-1.2.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Work/eclipse-workspace/SeniorGUI/dependencies/jxmapviewer2-2.6.jar"/>
+	<classpathentry kind="lib" path="src/v1/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="src/v1/jxmapviewer2-2.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
