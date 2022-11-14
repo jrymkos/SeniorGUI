@@ -77,7 +77,7 @@ public class GUI {
 	private JTabbedPane tabbedPane;
 	
 	//Variables
-	private boolean con_status = false;
+	public static boolean con_status = false;
 	private int battery_percent = 0;
 	private int people = 0; //amount of people identified
 	private double balance = 0; //In degrees
@@ -112,34 +112,55 @@ public class GUI {
 		site_decision.setMaximumSize(new Dimension(200, site_decision.getMinimumSize().height));
 		
 		Client client = new Client();
-						
+		
+		
 		//Configure Buttons
 		connect_button = new JButton("Connect to Robot");
 		connect_button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
-				
-				console_text.append("Attempting to Connect\n");
-				console_text.append("Connection Successful\n");
-				
-				
-				try {
-					client.connect();
-				} catch (UnknownHostException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
+
+				if(con_status == true) {
+					console_text.append("Already connected\n");
 				}
-				
-				//Attempt to connect to robot if successful:
-				con_status = true;
-				connection_label.setText("Connection Status = " + con_status);
-				
-				//Set battery percent
-				
-				//Add robot marker to map
-				painter.addPainter(robotPainter);
-				
-				//If attempt unsuccessful
+				else {
+					console_text.append("Attempting to Connect\n");
+					
+					//Configure thread for connection
+					//Use a new thread to deal with connection
+					Thread t1 = new Thread(new Runnable() {
+						
+						public void run() {
+							try {
+								
+								if(client.connect() == true) {
+									console_text.append("Connection Successful\n");
+									con_status = true;
+									connection_label.setText("Connection Status = " + con_status);
+									
+									//Set battery percent
+									
+									//Add robot marker to map
+									painter.addPainter(robotPainter);
+									
+									client.read();
+								}
+								
+								else {
+									console_text.append("Failed to Connect\n");
+								}
+								
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+					});
+					
+					t1.start();
+					
+				}
 			}
 		});
 		
@@ -147,9 +168,11 @@ public class GUI {
 		disconnect_button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				
-				console_text.append("Attempting to Disconnect\n");
+				console_text.append("Disconnecting\n");
 				
-				//Attempt to disconnect to robot if successful:
+				client.disconnect();
+				
+				//Update
 				con_status = false;
 				connection_label.setText("Connection Status = " + con_status);
 				battery_percent = 0;
@@ -162,7 +185,6 @@ public class GUI {
 				siteB.setGray();
 				siteC.setGray();
 				
-				//If attempt unsuccessful
 			}
 		});
 		
@@ -415,6 +437,7 @@ public class GUI {
 	
 	public static void main(String[] args) {
 		new GUI();
+		
 	}
 
 }
