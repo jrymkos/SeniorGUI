@@ -25,8 +25,8 @@ public class Client  {
 	//Robot Data
 	private String buffer = "";
 	private char curByte;
-	private int Xcord; //Xcord from gps
-	private int Ycord; //Ycord from gps
+	private double Xcord; //Xcord from gps
+	private double Ycord; //Ycord from gps
 	private int numPeople; //amount of people from oak-d
 	
 	//Reads data from arduino while connected
@@ -37,22 +37,37 @@ public class Client  {
 		int counter = 0;
 		
 		while(soc.isClosed() == false) {
-			
+
 			try {
 				
 				while(in.ready()) {
 					
 					counter = 0; //reset
 					
-					System.out.println("reading data");
+					//Check identifier character
+					char identifier = (char) in.read();
 					
-					String data = in.readLine();
-					System.out.println(data);
+					if(Character.compare(identifier, 'X') == 0) {
+						
+						String data = in.readLine();
+						Xcord = Double.parseDouble(data);
+						System.out.println("X cord is: " + Xcord);
+					}
+					
+					else if(Character.compare(identifier, 'Y') == 0) {
+						
+						String data = in.readLine();
+						Ycord = Double.parseDouble(data);
+						System.out.println("Y cord is: " + Ycord);
+					}
+					
+					else {
+						System.out.println("Error in identifier byte");
+					}
 					
 					
 				}
 
-				
 				//If no response (which means the server stopped sending data break loop)
 			}catch (IOException e) {
 				System.out.println("Error, no response");
@@ -62,7 +77,6 @@ public class Client  {
 			
 			//Check if counter has gone too high
 			if(counter >= 10000) {
-				this.disconnect();
 				break;
 			}
 			counter += 100;
@@ -123,14 +137,17 @@ public class Client  {
 			System.out.println("Cant travel");
 		}
 	}
-
-
 	
-	public float getX() {
+	public boolean isConnected() {
+		if((soc.isClosed() == false) && (soc.isConnected() == true)) return true;
+		else return false;
+	}
+	
+	public double getX() {
 		return Xcord;
 	}
 	
-	public float getY() {
+	public double getY() {
 		return Ycord;
 	}
 	

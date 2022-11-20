@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -77,7 +78,7 @@ public class GUI {
 	private JTabbedPane tabbedPane;
 	
 	//Variables
-	public static boolean con_status = false;
+	private boolean con_status = false;
 	private int battery_percent = 0;
 	private int people = 0; //amount of people identified
 	private double balance = 0; //In degrees
@@ -143,6 +144,25 @@ public class GUI {
 									painter.addPainter(robotPainter);
 									
 									client.read();
+									
+									//After stopping or losing connection
+									console_text.append("Disconnecting\n");
+									
+									client.disconnect();
+									
+									//Update
+									con_status = false;
+									connection_label.setText("Connection Status = " + con_status);
+									battery_percent = 0;
+									
+									//Remove robot/paths from map and restore colors
+									painter.removePainter(routePainter);
+									painter.removePainter(robotPainter);
+									curRoute = "";
+									siteA.setGray();
+									siteB.setGray();
+									siteC.setGray();
+									
 								}
 								
 								else {
@@ -165,22 +185,7 @@ public class GUI {
 		disconnect_button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				
-				console_text.append("Disconnecting\n");
-				
 				client.disconnect();
-				
-				//Update
-				con_status = false;
-				connection_label.setText("Connection Status = " + con_status);
-				battery_percent = 0;
-				
-				//Remove robot/paths from map and restore colors
-				painter.removePainter(routePainter);
-				painter.removePainter(robotPainter);
-				curRoute = "";
-				siteA.setGray();
-				siteB.setGray();
-				siteC.setGray();
 				
 			}
 		});
@@ -274,6 +279,7 @@ public class GUI {
 			
 		//Configure Label/Outputs
 		connection_label = new JLabel("Connection Status = " + con_status);
+		connection_label.setAlignmentX(Component.CENTER_ALIGNMENT);
 		battery_label = new JLabel("Battery Percentage = " + battery_percent + "%");
 		people_label = new JLabel("Number of people found: " + people);
 		motor1_label = new JLabel("Motor 1: " + motor1 + " volts");
@@ -283,6 +289,7 @@ public class GUI {
 		
 		//Configure Text Boxes
 		console_text = new JTextArea("");
+		console_text.setFont(new Font ("TimesNewRoman", Font.BOLD, 20));
 		console_text.setEditable(false);
 		console_scroll = new JScrollPane(console_text);
 		console_scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -401,32 +408,32 @@ public class GUI {
 				
 				mapViewer.repaint();
 				
-				//Need to read and format coords from the GPS on robot
-				
-				
-				//Update robots coords
-				robot_coords = new GeoPosition(28.6744496,-81.1833509);
-				robot_marker.setPosition(robot_coords);
-				
-				//Update site lines only if the robot is moving to a Site
-				if(!(curRoute.equals(""))) {
+				if(client.isConnected() == true) {
 					
-					painter.removePainter(routePainter);
+					//Update robots coords
+					robot_coords = new GeoPosition(client.getX(), client.getY());
+					robot_marker.setPosition(robot_coords);
 					
-					if(curRoute.equals("Site A")) {
-						List<GeoPosition> path = Arrays.asList(siteA_coords, robot_coords);
-						routePainter = new RoutePainter(path);
+					//Update site lines only if the robot is moving to a Site
+					if(!(curRoute.equals(""))) {
+						
+						painter.removePainter(routePainter);
+						
+						if(curRoute.equals("Site A")) {
+							List<GeoPosition> path = Arrays.asList(siteA_coords, robot_coords);
+							routePainter = new RoutePainter(path);
+						}
+						else if (curRoute.equals("Site B")) {
+							List<GeoPosition> path = Arrays.asList(siteB_coords, robot_coords);
+							routePainter = new RoutePainter(path);
+						}
+						else if (curRoute.equals("Site C")) {
+							List<GeoPosition> path = Arrays.asList(siteC_coords, robot_coords);
+							routePainter = new RoutePainter(path);
+						}
+						
+				        painter.addPainter(routePainter);
 					}
-					else if (curRoute.equals("Site B")) {
-						List<GeoPosition> path = Arrays.asList(siteB_coords, robot_coords);
-						routePainter = new RoutePainter(path);
-					}
-					else if (curRoute.equals("Site C")) {
-						List<GeoPosition> path = Arrays.asList(siteC_coords, robot_coords);
-						routePainter = new RoutePainter(path);
-					}
-					
-			        painter.addPainter(routePainter);
 				}
 	
 			}
