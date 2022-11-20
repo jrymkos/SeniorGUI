@@ -16,68 +16,80 @@ import java.net.UnknownHostException;
 
 public class Client  {
 	
-	private Socket soc;
+	private Socket soc= new Socket();
 	private PrintWriter out;
 	private BufferedReader in;
-	private String host = "192.168.0.137"; //Use System.out.println(InetAddress.getLocalHost()); to find host IP
+	private String host = "****"; //Use System.out.println(InetAddress.getLocalHost()); to find host IP
 	private int port = 4999;
 	
 	//Robot Data
+	private String buffer = "";
+	private char curByte;
 	private int Xcord; //Xcord from gps
 	private int Ycord; //Ycord from gps
 	private int numPeople; //amount of people from oak-d
 	
+	//Reads data from arduino while connected
 	public void read() throws InterruptedException {
 		
-		while(true) {
+		//This counts how long it takes for data to get sent
+		//If data is not sent in a 10 second period it will disconnect
+		int counter = 0;
+		
+		while(soc.isClosed() == false) {
 			
 			try {
-				//Set robot data
-				//Xcord = in.readLine();
-				//Ycord = in.readLine();
-				//numPeople = in.readLine();
-				System.out.println(in.readLine());
+				
+				while(in.ready()) {
+					
+					counter = 0; //reset
+					
+					System.out.println("reading data");
+					
+					String data = in.readLine();
+					System.out.println(data);
+					
+					
+				}
+
 				
 				//If no response (which means the server stopped sending data break loop)
-			} catch (IOException e) {
-				break;
+			}catch (IOException e) {
+				System.out.println("Error, no response");
 			}
 			
-			System.out.println("Requesting data:");
-			//Request data again
-			out.println("hello");
-			out.flush();
+			Thread.sleep(100);
 			
-			Thread.sleep(2000);
+			//Check if counter has gone too high
+			if(counter >= 10000) {
+				this.disconnect();
+				break;
+			}
+			counter += 100;
 		}
 	
-		System.out.println("DONE");
+		System.out.println("Disconnected");
 	}
 	
-	public boolean connect() throws  InterruptedException, IOException {
+	public boolean connect() throws  InterruptedException {
 		
-			soc = new Socket();
-			soc.connect(new InetSocketAddress(host, port), 1000);
+		//Attempt to connect
+		soc = new Socket();
+
+		try {
+			soc.connect(new InetSocketAddress(host, port), 1000); //1 second timeout for initial connection
 			soc.setSoTimeout(5000); //5 second timeout
 			
 			//Setup out and in
 			out = new PrintWriter(soc.getOutputStream());
 			in = new BufferedReader(new InputStreamReader(soc.getInputStream()));
+			return true;
 			
-			//See if there is a response from server
-			out.println("hello");
-			out.flush();
-			
-			try {
-				System.out.println(in.readLine());
-				
-				//Request data now 
-				out.println("hello");
-				out.flush();
-				return true;
-			} catch (IOException e) {
-				return false;
-			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		} 
+
 	}
 
 	public void disconnect() {
@@ -89,6 +101,30 @@ public class Client  {
 		}
 		
 	}
+	
+	//Sends byte to Server
+	// 0 = Stop
+	// A = Travel to Site A
+	// B = Travel to Site B
+	// C = Travel to Site C
+	public void sendSite(String site) {
+		
+		if((soc.isClosed() == false) && (soc.isConnected()) == true) {
+			
+			if(site.equals("Stop")) out.println("0");
+			else if(site.equals("Site A")) out.println("A");
+			else if(site.equals("Site B")) out.println("B");
+			else if(site.equals("Site C")) out.println("C");
+			out.flush();
+				
+		}
+		
+		else {
+			System.out.println("Cant travel");
+		}
+	}
+
+
 	
 	public float getX() {
 		return Xcord;

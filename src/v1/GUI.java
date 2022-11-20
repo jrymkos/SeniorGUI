@@ -151,9 +151,6 @@ public class GUI {
 								
 							} catch (InterruptedException e) {
 								e.printStackTrace();
-							} catch (IOException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
 							}
 						}
 					});
@@ -213,6 +210,7 @@ public class GUI {
 			        siteA.setRed();
 			        siteB.setGray();
 			        siteC.setGray();
+			        client.sendSite(site_decision.getSelectedItem().toString());
 				}
 				
 				else if(site_decision.getSelectedItem().toString().equals("Site B")) {
@@ -222,6 +220,7 @@ public class GUI {
 			        siteB.setRed();
 			        siteA.setGray();
 			        siteC.setGray();
+			        client.sendSite(site_decision.getSelectedItem().toString());
 				}
 				
 				else if(site_decision.getSelectedItem().toString().equals("Site C")) {
@@ -231,6 +230,7 @@ public class GUI {
 			        siteC.setRed();
 			        siteB.setGray();
 			        siteA.setGray();
+			        client.sendSite(site_decision.getSelectedItem().toString());
 				}
 				painter.addPainter(routePainter);
 				curRoute = site_decision.getSelectedItem().toString();
@@ -247,7 +247,8 @@ public class GUI {
 				
 				console_text.append("Stopping Travel \n");
 				
-				//Send signal to ROS
+				//Send signal to ESP32
+				client.sendSite("Stop");
 				
 				//Clean up Map
 				curRoute = "";
