@@ -117,6 +117,8 @@ public class GUI {
 		
 		//Configure Buttons
 		connect_button = new JButton("Connect to Robot");
+		connect_button.setMaximumSize(new Dimension(1000, 100));
+		connect_button.setAlignmentX(Component.CENTER_ALIGNMENT);
 		connect_button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 
@@ -279,8 +281,9 @@ public class GUI {
 			
 		//Configure Label/Outputs
 		connection_label = new JLabel("Connection Status = " + con_status);
-		connection_label.setAlignmentX(Component.CENTER_ALIGNMENT);
+		connection_label.setFont(new Font ("TimesNewRoman", Font.BOLD, 20));
 		battery_label = new JLabel("Battery Percentage = " + battery_percent + "%");
+		battery_label.setFont(new Font ("TimesNewRoman", Font.BOLD, 20));
 		people_label = new JLabel("Number of people found: " + people);
 		motor1_label = new JLabel("Motor 1: " + motor1 + " volts");
 		motor2_label = new JLabel("Motor 2: " + motor2 + " volts");
