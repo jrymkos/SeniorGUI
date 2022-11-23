@@ -3,6 +3,7 @@ package v1;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.ComponentOrientation;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -13,6 +14,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,6 +33,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.event.MouseInputListener;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.OSMTileFactoryInfo;
@@ -74,6 +78,7 @@ public class GUI {
 	private JLabel speed_label;
 	private JLabel balance_label;
 	private JTextArea console_text;
+	private JTextField launch_text;
 	private JScrollPane console_scroll;
 	private JTabbedPane tabbedPane;
 	
@@ -119,6 +124,7 @@ public class GUI {
 		connect_button = new JButton("Connect to Robot");
 		connect_button.setMaximumSize(new Dimension(1000, 100));
 		connect_button.setAlignmentX(Component.CENTER_ALIGNMENT);
+		connect_button.setFont(new Font ("TimesNewRoman", Font.BOLD, 20));
 		connect_button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 
@@ -184,6 +190,7 @@ public class GUI {
 		});
 		
 		disconnect_button = new JButton("Disconnect from Robot");
+		disconnect_button.setFont(new Font ("TimesNewRoman", Font.BOLD, 20));
 		disconnect_button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				
@@ -282,6 +289,8 @@ public class GUI {
 		//Configure Label/Outputs
 		connection_label = new JLabel("Connection Status = " + con_status);
 		connection_label.setFont(new Font ("TimesNewRoman", Font.BOLD, 20));
+		connection_label.setHorizontalAlignment(JTextField.CENTER);
+
 		battery_label = new JLabel("Battery Percentage = " + battery_percent + "%");
 		battery_label.setFont(new Font ("TimesNewRoman", Font.BOLD, 20));
 		people_label = new JLabel("Number of people found: " + people);
@@ -297,6 +306,13 @@ public class GUI {
 		console_scroll = new JScrollPane(console_text);
 		console_scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		console_scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		
+		launch_text = new JTextField("Not Ready to Launch");
+		launch_text.setFont(new Font ("TimesNewRoman", Font.BOLD, 30));
+		launch_text.setBackground(Color.PINK);
+		launch_text.setEditable(false);
+		launch_text.setHorizontalAlignment(JTextField.CENTER);
+		
         
 		//Set Sites
 		siteA_coords = new GeoPosition(28.6745596,-81.1835509);
@@ -359,7 +375,8 @@ public class GUI {
 		home_panel.add(connect_button);
 		home_panel.add(disconnect_button);
 		home_panel.add(connection_label);
-		home_panel.add(battery_label);
+		home_panel.add(launch_text);
+		//home_panel.add(battery_label);
 		
 		sensor_panel = new JPanel();
 		sensor_panel.setBorder(BorderFactory.createEmptyBorder(30, 30, 10, 30));
@@ -417,6 +434,9 @@ public class GUI {
 					robot_coords = new GeoPosition(client.getX(), client.getY());
 					robot_marker.setPosition(robot_coords);
 					
+					//Change launch text
+					updateLaunch(client.getLaunch());
+					
 					//Update site lines only if the robot is moving to a Site
 					if(!(curRoute.equals(""))) {
 						
@@ -443,6 +463,19 @@ public class GUI {
 		};
 		new javax.swing.Timer(delay, mapUpdater).start();
 		
+	}
+	
+	public void updateLaunch(boolean status) {
+		
+		if(status) {
+			launch_text.setBackground(Color.GREEN);
+			launch_text.setText("Ready to Launch");
+		}
+		
+		else {
+			launch_text.setBackground(Color.PINK);
+			launch_text.setText("Not Ready to Launch");
+		}
 	}
 	
 	

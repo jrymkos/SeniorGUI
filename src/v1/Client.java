@@ -23,11 +23,10 @@ public class Client  {
 	private int port = 4999;
 	
 	//Robot Data
-	private String buffer = "";
-	private char curByte;
 	private double Xcord; //Xcord from gps
 	private double Ycord; //Ycord from gps
 	private int numPeople; //amount of people from oak-d
+	private boolean launchStatus = false;
 	
 	//Reads data from arduino while connected
 	public void read() throws InterruptedException {
@@ -59,6 +58,14 @@ public class Client  {
 						String data = in.readLine();
 						Ycord = Double.parseDouble(data);
 						System.out.println("Y cord is: " + Ycord);
+					}
+					
+					else if(Character.compare(identifier, 'L') == 0) {
+						
+						String data = in.readLine();
+						if(Integer.parseInt(data) == 0) launchStatus = false;
+						else if((Integer.parseInt(data) == 1)) launchStatus = true;
+						System.out.println("LaunchStaus = " + launchStatus);
 					}
 					
 					else {
@@ -154,5 +161,8 @@ public class Client  {
 	public int getPeople() {
 		return numPeople;
 	}
-
+	
+	public boolean getLaunch() {
+		return launchStatus;
+	}
 }
