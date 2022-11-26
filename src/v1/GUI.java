@@ -151,7 +151,12 @@ public class GUI {
 									//Add robot marker to map
 									painter.addPainter(robotPainter);
 									
-									client.read();
+									//Keep printing to console until stopped.
+									while(true) {
+										String line = client.read();
+										if(line.equals("false")) break;
+										else console_text.append(line + "\n");
+									}; 
 									
 									//After stopping or losing connection
 									console_text.append("Disconnecting\n");
@@ -428,14 +433,15 @@ public class GUI {
 				
 				mapViewer.repaint();
 				
+				//Change launch text
+				updateLaunch(client.getLaunch());
+				
+				
 				if(client.isConnected() == true) {
 					
 					//Update robots coords
 					robot_coords = new GeoPosition(client.getX(), client.getY());
 					robot_marker.setPosition(robot_coords);
-					
-					//Change launch text
-					updateLaunch(client.getLaunch());
 					
 					//Update site lines only if the robot is moving to a Site
 					if(!(curRoute.equals(""))) {
@@ -466,7 +472,7 @@ public class GUI {
 	}
 	
 	public void updateLaunch(boolean status) {
-		
+
 		if(status) {
 			launch_text.setBackground(Color.GREEN);
 			launch_text.setText("Ready to Launch");

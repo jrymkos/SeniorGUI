@@ -29,7 +29,7 @@ public class Client  {
 	private boolean launchStatus = false;
 	
 	//Reads data from arduino while connected
-	public void read() throws InterruptedException {
+	public String read() throws InterruptedException {
 		
 		//This counts how long it takes for data to get sent
 		//If data is not sent in a 10 second period it will disconnect
@@ -51,6 +51,7 @@ public class Client  {
 						String data = in.readLine();
 						Xcord = Double.parseDouble(data);
 						System.out.println("X cord is: " + Xcord);
+						return data;
 					}
 					
 					else if(Character.compare(identifier, 'Y') == 0) {
@@ -58,6 +59,7 @@ public class Client  {
 						String data = in.readLine();
 						Ycord = Double.parseDouble(data);
 						System.out.println("Y cord is: " + Ycord);
+						return data;
 					}
 					
 					else if(Character.compare(identifier, 'L') == 0) {
@@ -66,6 +68,7 @@ public class Client  {
 						if(Integer.parseInt(data) == 0) launchStatus = false;
 						else if((Integer.parseInt(data) == 1)) launchStatus = true;
 						System.out.println("LaunchStaus = " + launchStatus);
+						return data;
 					}
 					
 					else {
@@ -88,8 +91,9 @@ public class Client  {
 			}
 			counter += 100;
 		}
-	
+		
 		System.out.println("Disconnected");
+		return "false"; //false means do not run again
 	}
 	
 	public boolean connect() throws  InterruptedException {
@@ -117,6 +121,7 @@ public class Client  {
 		
 		try {
 			soc.close();
+			launchStatus = false;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
