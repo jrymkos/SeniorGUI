@@ -86,7 +86,7 @@ public class Client  {
 			Thread.sleep(100);
 			
 			//Check if counter has gone too high
-			if(counter >= 10000) {
+			if(counter >= 5000) {
 				break;
 			}
 			counter += 100;
